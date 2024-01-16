@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">ReminderYou</string>
+    <string name="your_tasks">Your tasks</string>
+    <string name="tasks_complete">Tasks complete></string>
+    <string name="tasks_in_progress">Task in progress</string>
+    <string name="done">Done</string>
+    <string name="pending">Pending</string>
+    <string name="category_task_number">%d Tasks</string>
+    <string name="category_card_content_description">Details of category called %s</string>
+    <string name="categories">Categories</string>
+    <string name="to_do">To do</string>
+    <string name="add_new_task">Add new task</string>
+    <string name="add_task">Add task</string>
+    <string name="add_task_title">Title</string>
+    <string name="add_task_description">Description</string>
+    <string name="add_task_date">Date</string>
+    <string name="date">Date</string>
+    <string name="time">Time</string>
+    <string name="confirm">Confirm</string>
+    <string name="delete">Delete</string>
+    <string name="back">Back</string>
+    <string name="menu">Menu</string>
+    <string name="category">Category</string>
+</resources>
