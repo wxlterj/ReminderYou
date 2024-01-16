@@ -21,9 +21,14 @@ import com.example.reminderyou.ui.core.util.composables.TasksList
 import com.example.reminderyou.ui.theme.ReminderYouTheme
 
 @Composable
-fun CategoryScreen() {
+fun CategoryScreen(onBackButtonClicked: () -> Unit) {
     Scaffold(
-        topBar = { ReminderYouTopAppBar(currentScreen = Screen.Category) }
+        topBar = {
+            ReminderYouTopAppBar(
+                currentScreen = Screen.Category,
+                onNavigationIconClicked = onBackButtonClicked
+            )
+        }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -46,10 +51,10 @@ fun CategoryScreen() {
     }
 }
 
-@Preview
-@Composable
-fun CategoryScreenPreview() {
-    ReminderYouTheme {
-        CategoryScreen()
-    }
-}
+//@Preview
+//@Composable
+//fun CategoryScreenPreview() {
+//    ReminderYouTheme {
+//        CategoryScreen()
+//    }
+//}

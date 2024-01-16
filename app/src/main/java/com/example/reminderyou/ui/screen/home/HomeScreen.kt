@@ -19,12 +19,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -43,36 +48,58 @@ import com.example.reminderyou.ui.core.util.composables.TaskStatusCard
 import com.example.reminderyou.ui.core.util.composables.TasksList
 import com.example.reminderyou.ui.theme.ReminderYouTheme
 import com.example.reminderyou.util.FabType
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
-    Scaffold(
-        topBar = { ReminderYouTopAppBar(currentScreen = Screen.Home) },
-        floatingActionButton = {
-            ReminderYouFAB(
-                onFabButtonPressed = {},
-                fabType = FabType.EXTENDED
-            )
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet {
+
+            }
         }
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ) {
-            TaskStatusCard(
-                tasksDone = "5",
-                tasksPending = "2",
-                modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
-            )
-            CategoriesList(categories = DataSource.categories)
-            TasksList(
-                tasks = DataSource.tasks,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
+    ) {
+        Scaffold(
+            topBar = {
+                ReminderYouTopAppBar(
+                    currentScreen = Screen.Home,
+                    onNavigationIconClicked = {
+                        scope.launch {
+                            drawerState.apply {
+                                if (isClosed) open() else close()
+                            }
+                        }
+                    }
+                )
+            },
+            floatingActionButton = {
+                ReminderYouFAB(
+                    onFabButtonPressed = {},
+                    fabType = FabType.EXTENDED
+                )
+            }
+        ) { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+            ) {
+                TaskStatusCard(
+                    tasksDone = "5",
+                    tasksPending = "2",
+                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
+                )
+                CategoriesList(categories = DataSource.categories)
+                TasksList(
+                    tasks = DataSource.tasks,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            }
         }
     }
-
 }
 
 @Composable

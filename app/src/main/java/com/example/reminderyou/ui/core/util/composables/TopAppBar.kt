@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
@@ -20,16 +21,24 @@ import com.example.reminderyou.ui.core.util.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReminderYouTopAppBar(currentScreen: Screen, modifier: Modifier = Modifier) {
+fun ReminderYouTopAppBar(
+    currentScreen: Screen,
+    onNavigationIconClicked: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     CenterAlignedTopAppBar(
         title = {/* DON'T HAVE TITLE */ },
         modifier = modifier,
         navigationIcon = {
-            Icon(
-                imageVector = currentScreen.navigationIcon.icon,
-                contentDescription = stringResource(currentScreen.navigationIcon.description),
-                modifier = Modifier.padding(start = 16.dp)
-            )
+            IconButton(
+                onClick = onNavigationIconClicked,
+                modifier = Modifier
+            ) {
+                Icon(
+                    imageVector = currentScreen.navigationIcon.icon,
+                    contentDescription = stringResource(currentScreen.navigationIcon.description),
+                )
+            }
         },
         actions = {
             Icon(
