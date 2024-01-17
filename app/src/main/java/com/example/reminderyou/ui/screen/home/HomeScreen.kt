@@ -43,12 +43,15 @@ import com.example.reminderyou.domain.model.Category
 import com.example.reminderyou.ui.core.util.Screen
 import com.example.reminderyou.ui.core.util.composables.ReminderYouFAB
 import com.example.reminderyou.ui.core.util.composables.ReminderYouTopAppBar
+import com.example.reminderyou.ui.core.util.composables.TaskDetailsBottomSheet
 import com.example.reminderyou.ui.core.util.composables.TaskItem
 import com.example.reminderyou.ui.core.util.composables.TaskStatusCard
 import com.example.reminderyou.ui.core.util.composables.TasksList
 import com.example.reminderyou.ui.theme.ReminderYouTheme
 import com.example.reminderyou.util.FabType
+import com.example.reminderyou.util.timeFormatter
 import kotlinx.coroutines.launch
+import java.time.LocalTime
 
 @Composable
 fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
@@ -98,6 +101,15 @@ fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
             }
+            
+            TaskDetailsBottomSheet(
+                onDismissRequest = { /*TODO*/ },
+                taskTitle = DataSource.tasks.get(0).title,
+                taskDescription = DataSource.tasks.get(0).description,
+                taskDate = DataSource.tasks.get(0).date.toString(),
+                taskTime = LocalTime.now().format(timeFormatter).toString(),
+                onEditClicked = { /*TODO*/ },
+                onDeleteClicked = { /*TODO*/ })
         }
     }
 }

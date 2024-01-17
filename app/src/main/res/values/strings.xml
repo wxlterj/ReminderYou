@@ -18,7 +18,9 @@
     <string name="time">Time</string>
     <string name="confirm">Confirm</string>
     <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
     <string name="back">Back</string>
     <string name="menu">Menu</string>
     <string name="category">Category</string>
+
 </resources>
