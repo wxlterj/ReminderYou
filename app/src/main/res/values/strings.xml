@@ -22,5 +22,10 @@
     <string name="back">Back</string>
     <string name="menu">Menu</string>
     <string name="category">Category</string>
+    <string name="error">Error</string>
+    <string name="connection_error">Connection Error</string>
+    <string name="connection_error_message_1">There was a connection error</string>
+    <string name="connection_error_message_2">Check your connection or retry</string>
+    <string name="retry">Retry</string>
 
 </resources>

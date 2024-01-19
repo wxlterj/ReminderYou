@@ -96,7 +96,7 @@ fun TaskDetails(
 
 @Composable
 fun TaskDetailsDescription(taskDescription: String, modifier: Modifier = Modifier) {
-    Column(modifier = modifier) {
+    Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = stringResource(R.string.add_task_description),
             modifier = Modifier.padding(bottom = 4.dp),
@@ -105,7 +105,9 @@ fun TaskDetailsDescription(taskDescription: String, modifier: Modifier = Modifie
         Card {
             Text(
                 text = taskDescription,
-                modifier = Modifier.padding(12.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 12.dp),
                 style = MaterialTheme.typography.bodyMedium
             )
         }
@@ -156,7 +158,7 @@ fun TaskDetailsPreview() {
     ReminderYouTheme {
         TaskDetails(
             taskTitle = "Do something",
-            taskDescription = LoremIpsum(20).values.first(),
+            taskDescription = LoremIpsum(1).values.first(),
             date = LocalDate.now().toString(),
             time = LocalTime.now().format(timeFormatter).toString(),
             onEditClicked = {},
