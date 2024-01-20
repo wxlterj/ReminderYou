@@ -107,7 +107,8 @@ fun TaskDetailsDescription(taskDescription: String, modifier: Modifier = Modifie
                 text = taskDescription,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 12.dp),
+                    .padding(vertical = 12.dp)
+                    .padding(start = 8.dp),
                 style = MaterialTheme.typography.bodyMedium
             )
         }

@@ -32,8 +32,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -44,8 +42,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.reminderyou.R
 import com.example.reminderyou.data.local.fake.DataSource
 import com.example.reminderyou.domain.model.Category
@@ -62,8 +60,8 @@ import kotlinx.coroutines.launch
 import java.time.LocalTime
 
 @Composable
-fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
-    val uiState by viewModel.uiState.collectAsState()
+fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -90,7 +88,7 @@ fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
                 )
             },
             floatingActionButton = {
-                if (uiState == HomeScreenUiState.Success()) {
+                if (uiState is HomeUiState.Success) {
                     ReminderYouFAB(
                         onFabButtonPressed = {},
                         fabType = FabType.EXTENDED
@@ -99,26 +97,34 @@ fun HomeScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
             }
         ) { innerPadding ->
             when (uiState) {
-                HomeScreenUiState.Success() -> {
-                    HomeScreenSuccess(modifier = Modifier.padding(innerPadding))
+                is HomeUiState.Success -> {
+                    HomeScreenSuccess(
+                        showTaskDetails = (uiState as HomeUiState.Success).showTaskDetails,
+                        onTaskItemClicked =  { viewModel.onTaskItemClicked() },
+                        onDismissRequest = { viewModel.onTaskBottomSheetClosed() },
+                        modifier = Modifier.padding(innerPadding)
+                    )
                 }
 
-                HomeScreenUiState.Loading -> {
+                is HomeUiState.Loading -> {
                     HomeScreenLoading()
                 }
 
-                HomeScreenUiState.Error -> {
+                is HomeUiState.Error -> {
                     HomeScreenError(onRetryClicked = { })
                 }
-
-                else -> {}
             }
         }
     }
 }
 
 @Composable
-fun HomeScreenSuccess(modifier: Modifier = Modifier) {
+fun HomeScreenSuccess(
+    showTaskDetails: Boolean,
+    onTaskItemClicked: () -> Unit,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Column(
         modifier = modifier.fillMaxSize()
     ) {
@@ -130,19 +136,22 @@ fun HomeScreenSuccess(modifier: Modifier = Modifier) {
         CategoriesList(categories = DataSource.categories)
         TasksList(
             tasks = DataSource.tasks,
+            onTaskItemClicked = onTaskItemClicked,
             modifier = Modifier.padding(horizontal = 16.dp)
         )
     }
 
-    TaskDetailsBottomSheet(
-        onDismissRequest = { /*TODO*/ },
-        taskTitle = DataSource.tasks.get(0).title,
-        taskDescription = DataSource.tasks.get(0).description,
-        taskDate = DataSource.tasks.get(0).date.toString(),
-        taskTime = LocalTime.now().format(timeFormatter).toString(),
-        onEditClicked = { /*TODO*/ },
-        onDeleteClicked = { /*TODO*/ }
-    )
+    if (showTaskDetails) {
+        TaskDetailsBottomSheet(
+            onDismissRequest = onDismissRequest,
+            taskTitle = DataSource.tasks.get(0).title,
+            taskDescription = DataSource.tasks.get(0).description,
+            taskDate = DataSource.tasks.get(0).date.toString(),
+            taskTime = LocalTime.now().format(timeFormatter).toString(),
+            onEditClicked = { /*TODO*/ },
+            onDeleteClicked = { /*TODO*/ }
+        )
+    }
 }
 
 @Composable

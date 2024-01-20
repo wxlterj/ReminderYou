@@ -41,7 +41,11 @@ import com.example.reminderyou.R
 import com.example.reminderyou.domain.model.Task
 
 @Composable
-fun TasksList(tasks: List<Task>, modifier: Modifier = Modifier) {
+fun TasksList(
+    tasks: List<Task>,
+    onTaskItemClicked: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -57,7 +61,11 @@ fun TasksList(tasks: List<Task>, modifier: Modifier = Modifier) {
                 )
             }
             items(tasks, key = { task -> task.id }) { task ->
-                TaskItemSwippable(taskTitle = task.title, taskCategoryName = task.category.name)
+                TaskItemSwippable(
+                    taskTitle = task.title,
+                    taskCategoryName = task.category.name,
+                    onTaskItemClicked = onTaskItemClicked
+                )
             }
         }
     }
@@ -65,7 +73,12 @@ fun TasksList(tasks: List<Task>, modifier: Modifier = Modifier) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskItemSwippable(taskTitle: String, taskCategoryName: String, modifier: Modifier = Modifier) {
+fun TaskItemSwippable(
+    taskTitle: String,
+    taskCategoryName: String,
+    onTaskItemClicked: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val swipeState = rememberDismissState()
 
     SwipeToDismiss(
@@ -90,22 +103,27 @@ fun TaskItemSwippable(taskTitle: String, taskCategoryName: String, modifier: Mod
         dismissContent = {
             TaskItem(
                 taskTitle = taskTitle,
-                categoryName = taskCategoryName
+                categoryName = taskCategoryName,
+                onTaskItemClicked = onTaskItemClicked
             )
-        }
+        },
+        modifier = modifier
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskItem(
     taskTitle: String,
     categoryName: String,
+    onTaskItemClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier
             .fillMaxWidth()
             .height(72.dp),
+        onClick = onTaskItemClicked,
         elevation = CardDefaults.cardElevation(4.dp),
         border = BorderStroke(0.5.dp, Brush.verticalGradient(listOf(Color.Blue, Color.Cyan)))
     ) {
