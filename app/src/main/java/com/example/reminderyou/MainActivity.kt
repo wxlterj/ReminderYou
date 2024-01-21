@@ -10,6 +10,7 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.ui.Modifier
 import com.example.reminderyou.ui.app.ReminderYouApp
+import com.example.reminderyou.ui.core.navigation.Navigation
 import com.example.reminderyou.ui.theme.ReminderYouTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -26,7 +27,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    ReminderYouApp(windowWidthSize)
+                    ReminderYouApp(windowWidthSizeClass = windowWidthSize)
                 }
             }
         }

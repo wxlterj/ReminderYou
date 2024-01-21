@@ -35,7 +35,7 @@ import java.time.LocalTime
 fun TaskDetailsBottomSheet(
     onDismissRequest: () -> Unit,
     taskTitle: String,
-    taskDescription: String,
+    taskDescription: String?,
     taskDate: String,
     taskTime: String,
     onEditClicked: () -> Unit,
@@ -69,7 +69,7 @@ fun TaskDetailsBottomSheet(
 @Composable
 fun TaskDetails(
     taskTitle: String,
-    taskDescription: String,
+    taskDescription: String?,
     date: String,
     time: String,
     onEditClicked: () -> Unit,
@@ -95,22 +95,24 @@ fun TaskDetails(
 }
 
 @Composable
-fun TaskDetailsDescription(taskDescription: String, modifier: Modifier = Modifier) {
+fun TaskDetailsDescription(taskDescription: String?, modifier: Modifier = Modifier) {
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = stringResource(R.string.add_task_description),
             modifier = Modifier.padding(bottom = 4.dp),
             style = MaterialTheme.typography.titleMedium
         )
-        Card {
-            Text(
-                text = taskDescription,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 12.dp)
-                    .padding(start = 8.dp),
-                style = MaterialTheme.typography.bodyMedium
-            )
+        taskDescription?.let { description ->
+            Card {
+                Text(
+                    text = description,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp)
+                        .padding(start = 8.dp),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         }
     }
 }

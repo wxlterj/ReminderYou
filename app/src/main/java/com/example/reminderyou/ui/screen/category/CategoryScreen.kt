@@ -46,7 +46,11 @@ fun CategoryScreen(onBackButtonClicked: () -> Unit) {
                 modifier = Modifier
                     .padding(16.dp)
             )
-            TasksList(tasks = DataSource.tasks, onTaskItemClicked = {/*TODO*/}, modifier = Modifier.padding(horizontal = 16.dp))
+            /* TODO TasksList(tasks = DataSource.tasks,
+                onTaskItemClicked = {/*TODO*/ },
+                onTaskChecked = { task, isChecked },
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )*/
         }
     }
 }

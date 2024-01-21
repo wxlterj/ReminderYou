@@ -78,14 +78,14 @@ dependencies {
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 
     // Room
-    implementation("androidx.room:room-runtime:$2.5.0")
-    kapt("androidx.room:room-compiler:$2.5.0")
+    implementation("androidx.room:room-runtime:2.5.0")
+    kapt("androidx.room:room-compiler:2.5.0")
 
     // DataStore
     implementation("androidx.datastore:datastore-preferences:1.0.0")
 
     // Navigation
-    implementation("androidx.navigation:navigation-compose:$2.5.3")
+    implementation("androidx.navigation:navigation-compose:2.7.6")
 
     // WorkManager
     implementation("androidx.work:work-runtime-ktx:2.9.0")

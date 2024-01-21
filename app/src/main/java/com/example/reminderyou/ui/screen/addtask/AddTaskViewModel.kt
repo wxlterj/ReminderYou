@@ -1,6 +1,8 @@
 package com.example.reminderyou.ui.screen.addtask
 
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.reminderyou.util.dateFormatter
 import com.example.reminderyou.util.timeFormatter
@@ -21,8 +23,12 @@ data class AddTaskUiState(
 @HiltViewModel
 class AddTaskViewModel @Inject constructor() : ViewModel() {
 
-    var textFieldState = mutableStateOf("")
+    var titleState by mutableStateOf("")
         private set
+
+    var descriptionState by mutableStateOf("")
+        private set
+
 
     private val _uiState = MutableStateFlow(AddTaskUiState())
     val uiState = _uiState.asStateFlow()

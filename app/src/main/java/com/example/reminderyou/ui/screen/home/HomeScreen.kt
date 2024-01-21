@@ -32,6 +32,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -47,6 +48,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.reminderyou.R
 import com.example.reminderyou.data.local.fake.DataSource
 import com.example.reminderyou.domain.model.Category
+import com.example.reminderyou.domain.model.Task
 import com.example.reminderyou.ui.core.util.Screen
 import com.example.reminderyou.ui.core.util.composables.ReminderYouFAB
 import com.example.reminderyou.ui.core.util.composables.ReminderYouTopAppBar
@@ -60,7 +62,10 @@ import kotlinx.coroutines.launch
 import java.time.LocalTime
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
+fun HomeScreen(
+    onAddTaskPressed: () -> Unit,
+    viewModel: HomeViewModel = viewModel()
+) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -90,7 +95,7 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
             floatingActionButton = {
                 if (uiState is HomeUiState.Success) {
                     ReminderYouFAB(
-                        onFabButtonPressed = {},
+                        onFabButtonPressed = onAddTaskPressed,
                         fabType = FabType.EXTENDED
                     )
                 }
@@ -99,9 +104,11 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
             when (uiState) {
                 is HomeUiState.Success -> {
                     HomeScreenSuccess(
+                        toDoTasks = (uiState as HomeUiState.Success).tasksChecked,
                         showTaskDetails = (uiState as HomeUiState.Success).showTaskDetails,
-                        onTaskItemClicked =  { viewModel.onTaskItemClicked() },
+                        onTaskItemClicked = { viewModel.onTaskItemClicked() },
                         onDismissRequest = { viewModel.onTaskBottomSheetClosed() },
+                        onTaskChecked = { task, isChecked -> viewModel.checkTask(task, isChecked) },
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -120,9 +127,11 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
 
 @Composable
 fun HomeScreenSuccess(
+    toDoTasks: List<Task>,
     showTaskDetails: Boolean,
     onTaskItemClicked: () -> Unit,
     onDismissRequest: () -> Unit,
+    onTaskChecked: (Task, Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -135,8 +144,9 @@ fun HomeScreenSuccess(
         )
         CategoriesList(categories = DataSource.categories)
         TasksList(
-            tasks = DataSource.tasks,
+            tasks = toDoTasks,
             onTaskItemClicked = onTaskItemClicked,
+            onTaskChecked = onTaskChecked,
             modifier = Modifier.padding(horizontal = 16.dp)
         )
     }

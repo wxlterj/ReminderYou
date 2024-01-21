@@ -22,6 +22,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
@@ -42,7 +43,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.reminderyou.R
+import com.example.reminderyou.ui.core.util.NavigationIcon
+import com.example.reminderyou.ui.core.util.Screen
+import com.example.reminderyou.ui.core.util.composables.ReminderYouTopAppBar
 import com.example.reminderyou.ui.theme.ReminderYouTheme
 import com.example.reminderyou.util.dateFormatter
 import com.example.reminderyou.util.timeFormatter
@@ -51,10 +56,10 @@ import java.time.LocalTime
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddTaskScreen(
-    modifier: Modifier = Modifier,
+    onBackClicked: () -> Unit,
     viewModel: AddTaskViewModel = hiltViewModel(),
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     // Date
     val datePickerState = rememberDatePickerState()
@@ -95,18 +100,28 @@ fun AddTaskScreen(
         }
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
+    Scaffold(
+        topBar = {
+            ReminderYouTopAppBar(
+                currentScreen = Screen.AddTask,
+                onNavigationIconClicked = onBackClicked
+            )
+        }
+    ) { innerPadding ->
         AddTaskForm(
-            title = "",
+            title = viewModel.titleState,
+            description = viewModel.descriptionState,
             date = uiState.datePicked.format(dateFormatter),
-            time = uiState.timePicked/*.format(timeFormatter)*/,
+            time = uiState.timePicked,
             dateInteractionSource = dateInteractionSource,
             timeInteractionSource = timeInteractionSource,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
         )
-
-
     }
+
+
 
     if (isDatePressed) {
         DatePickerDialog(
@@ -154,6 +169,7 @@ fun AddTaskScreen(
 @Composable
 fun AddTaskForm(
     title: String,
+    description: String,
     date: String,
     time: String,
     dateInteractionSource: MutableInteractionSource,
@@ -167,6 +183,7 @@ fun AddTaskForm(
     ) {
         Text(
             text = stringResource(R.string.add_new_task),
+            modifier = Modifier.padding(bottom = 24.dp),
             style = MaterialTheme.typography.headlineLarge
         )
         Spacer(modifier = Modifier.height(12.dp))
@@ -181,7 +198,7 @@ fun AddTaskForm(
         )
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
-            value = "",
+            value = description,
             onValueChange = {},
             label = { Text(text = stringResource(R.string.add_task_description)) },
             maxLines = 8,
@@ -221,13 +238,5 @@ fun AddTaskForm(
         Button(onClick = { /*TODO*/ }, modifier = Modifier.width(280.dp)) {
             Text(text = stringResource(R.string.add_task))
         }
-    }
-}
-
-@Preview(showSystemUi = true)
-@Composable
-fun AddTaskScreenPreview() {
-    ReminderYouTheme {
-        AddTaskScreen()
     }
 }

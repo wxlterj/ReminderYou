@@ -44,6 +44,7 @@ import com.example.reminderyou.domain.model.Task
 fun TasksList(
     tasks: List<Task>,
     onTaskItemClicked: () -> Unit,
+    onTaskChecked: (Task, Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -64,7 +65,9 @@ fun TasksList(
                 TaskItemSwippable(
                     taskTitle = task.title,
                     taskCategoryName = task.category.name,
-                    onTaskItemClicked = onTaskItemClicked
+                    onTaskItemClicked = onTaskItemClicked,
+                    isTaskChecked = task.isChecked,
+                    onTaskChecked = { isChecked -> onTaskChecked(task, isChecked) }
                 )
             }
         }
@@ -77,6 +80,8 @@ fun TaskItemSwippable(
     taskTitle: String,
     taskCategoryName: String,
     onTaskItemClicked: () -> Unit,
+    isTaskChecked: Boolean,
+    onTaskChecked: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val swipeState = rememberDismissState()
@@ -104,10 +109,13 @@ fun TaskItemSwippable(
             TaskItem(
                 taskTitle = taskTitle,
                 categoryName = taskCategoryName,
-                onTaskItemClicked = onTaskItemClicked
+                onTaskItemClicked = onTaskItemClicked,
+                isTaskChecked = isTaskChecked,
+                onTaskChecked = onTaskChecked
             )
         },
-        modifier = modifier
+        modifier = modifier,
+        directions = setOf(DismissDirection.EndToStart)
     )
 }
 
@@ -117,6 +125,8 @@ fun TaskItem(
     taskTitle: String,
     categoryName: String,
     onTaskItemClicked: () -> Unit,
+    isTaskChecked: Boolean,
+    onTaskChecked: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -131,11 +141,11 @@ fun TaskItem(
             modifier = Modifier.fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Checkbox(checked = false, onCheckedChange = {})
+            Checkbox(checked = isTaskChecked, onCheckedChange = onTaskChecked)
             Text(
                 text = taskTitle,
                 modifier = Modifier.weight(1f),
-                textDecoration = TextDecoration.LineThrough,
+                textDecoration = if (isTaskChecked) TextDecoration.LineThrough else TextDecoration.None,
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1,
                 style = MaterialTheme.typography.titleLarge
