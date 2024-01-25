@@ -25,15 +25,24 @@ class HomeViewModel @Inject constructor() : ViewModel() {
 
     fun checkTask(task: Task, isChecked: Boolean) {
         _uiState.update { currentState ->
-            val taskCheckedUpdated = (currentState as HomeUiState.Success).tasksChecked.map {
+            val taskListUpdated = (currentState as HomeUiState.Success).tasks.map {
                 if (it == task) {
                     it.copy(isChecked = isChecked)
                 } else {
                     it
                 }
             }
+            currentState.copy(tasks = taskListUpdated)
+        }
+    }
 
-            currentState.copy(tasksChecked = taskCheckedUpdated)
+    fun deleteTask(task: Task) {
+        _uiState.update { currentState ->
+            val tasksListMutable = (currentState as HomeUiState.Success).tasks.toMutableList()
+            tasksListMutable.remove(task)
+            currentState.copy(
+                tasks = tasksListMutable
+            )
         }
     }
 }

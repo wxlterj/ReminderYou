@@ -50,7 +50,10 @@ fun Navigation(navController: NavHostController = rememberNavController()) {
         }
     ) {
         composable(NavigationRoute.Home.route) {
-            HomeScreen(onAddTaskPressed = { navController.navigate(NavigationRoute.AddTask.route) })
+            HomeScreen(
+                onAddTaskPressed = { navController.navigate(NavigationRoute.AddTask.route) },
+                onCategoryClicked = { navController.navigate(NavigationRoute.CategoryScreen.route) }
+            )
         }
         composable(NavigationRoute.AddTask.route) {
             AddTaskScreen(onBackClicked = { navController.popBackStack() })

@@ -23,6 +23,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -32,7 +33,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -64,6 +64,7 @@ import java.time.LocalTime
 @Composable
 fun HomeScreen(
     onAddTaskPressed: () -> Unit,
+    onCategoryClicked: () -> Unit,
     viewModel: HomeViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -103,12 +104,16 @@ fun HomeScreen(
         ) { innerPadding ->
             when (uiState) {
                 is HomeUiState.Success -> {
+                    val currentState = (uiState as HomeUiState.Success)
                     HomeScreenSuccess(
-                        toDoTasks = (uiState as HomeUiState.Success).tasksChecked,
-                        showTaskDetails = (uiState as HomeUiState.Success).showTaskDetails,
+                        toDoTasks = currentState.tasks,
+                        categories = currentState.categories,
+                        showTaskDetails = currentState.showTaskDetails,
                         onTaskItemClicked = { viewModel.onTaskItemClicked() },
                         onDismissRequest = { viewModel.onTaskBottomSheetClosed() },
                         onTaskChecked = { task, isChecked -> viewModel.checkTask(task, isChecked) },
+                        onCategoryClicked = onCategoryClicked,
+                        onTaskDeleted = { task -> viewModel.deleteTask(task) },
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -128,25 +133,29 @@ fun HomeScreen(
 @Composable
 fun HomeScreenSuccess(
     toDoTasks: List<Task>,
+    categories: List<Category>,
     showTaskDetails: Boolean,
     onTaskItemClicked: () -> Unit,
     onDismissRequest: () -> Unit,
     onTaskChecked: (Task, Boolean) -> Unit,
+    onCategoryClicked: () -> Unit,
+    onTaskDeleted: (Task) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier.fillMaxSize()
     ) {
         TaskStatusCard(
-            tasksDone = "5",
-            tasksPending = "2",
+            tasksDone = toDoTasks.filter { it.isChecked }.size.toString(),
+            tasksPending = toDoTasks.filter { !it.isChecked }.size.toString(),
             modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
         )
-        CategoriesList(categories = DataSource.categories)
+        CategoriesList(categories = categories, onCategoryClicked = onCategoryClicked)
         TasksList(
             tasks = toDoTasks,
             onTaskItemClicked = onTaskItemClicked,
             onTaskChecked = onTaskChecked,
+            onTaskDeleted = onTaskDeleted,
             modifier = Modifier.padding(horizontal = 16.dp)
         )
     }
@@ -209,7 +218,11 @@ fun ErrorInformation(onRetryClicked: () -> Unit, modifier: Modifier = Modifier) 
 }
 
 @Composable
-fun CategoriesList(categories: List<Category>, modifier: Modifier = Modifier) {
+fun CategoriesList(
+    categories: List<Category>,
+    onCategoryClicked: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -228,13 +241,14 @@ fun CategoriesList(categories: List<Category>, modifier: Modifier = Modifier) {
                 CategoryCard(
                     categoryName = category.name,
                     categoryTasks = category.tasksQuantity,
-                    onCategoryClicked = { /*TODO*/ }
+                    onCategoryClicked = onCategoryClicked
                 )
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryCard(
     categoryName: String,
@@ -245,7 +259,8 @@ fun CategoryCard(
     Card(
         modifier = modifier.sizeIn(minWidth = 150.dp, maxWidth = 220.dp, minHeight = 140.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        border = BorderStroke(2.dp, Brush.verticalGradient(listOf(Color.Blue, Color.Cyan)))
+        border = BorderStroke(2.dp, Brush.verticalGradient(listOf(Color.Blue, Color.Cyan))),
+        onClick = onCategoryClicked
     ) {
         Column(
             modifier = Modifier

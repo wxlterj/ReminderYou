@@ -27,5 +27,10 @@
     <string name="connection_error_message_1">There was a connection error</string>
     <string name="connection_error_message_2">Check your connection or retry</string>
     <string name="retry">Retry</string>
+    <string name="nothing_to_do">Nothing to do!</string>
+    <string name="select_a_category">Select a category</string>
+    <string name="add_new_category">Add new category</string>
+    <string name="name">Name</string>
+    <string name="save_category">Save category</string>
 
 </resources>

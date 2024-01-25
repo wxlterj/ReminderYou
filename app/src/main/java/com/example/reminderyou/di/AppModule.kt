@@ -3,8 +3,12 @@ package com.example.reminderyou.di
 import android.content.Context
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.reminderyou.data.local.dao.CategoryDao
 import com.example.reminderyou.data.local.dao.TaskDao
 import com.example.reminderyou.data.local.database.ReminderYouDatabase
+import com.example.reminderyou.data.repository.CategoryRepository
+import com.example.reminderyou.domain.usecase.GetCategoriesUseCase
+import com.example.reminderyou.domain.usecase.SaveCategoryUseCase
 import com.example.reminderyou.util.DATABASE_NAME
 import dagger.Binds
 import dagger.Module
@@ -32,5 +36,29 @@ object AppModule {
     @Singleton
     fun provideTaskDao(database: ReminderYouDatabase): TaskDao {
         return database.getTaskDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideCategoryDao(database: ReminderYouDatabase): CategoryDao {
+        return database.getCategoryDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideCategoryRepository(categoryDao: CategoryDao): CategoryRepository {
+        return CategoryRepository(categoryDao)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetCategoriesUseCase(categoryRepository: CategoryRepository): GetCategoriesUseCase {
+        return GetCategoriesUseCase(categoryRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSaveCategoryUseCase(categoryRepository: CategoryRepository): SaveCategoryUseCase {
+        return SaveCategoryUseCase(categoryRepository)
     }
 }

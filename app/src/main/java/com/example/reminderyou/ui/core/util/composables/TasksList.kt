@@ -1,6 +1,12 @@
 package com.example.reminderyou.ui.core.util.composables
 
+import androidx.compose.animation.core.EaseOut
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideOut
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,6 +28,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DismissDirection
+import androidx.compose.material3.DismissValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -40,37 +47,58 @@ import androidx.compose.ui.unit.dp
 import com.example.reminderyou.R
 import com.example.reminderyou.domain.model.Task
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TasksList(
     tasks: List<Task>,
     onTaskItemClicked: () -> Unit,
     onTaskChecked: (Task, Boolean) -> Unit,
+    onTaskDeleted: (Task) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = PaddingValues(vertical = 16.dp)
-        ) {
-            item {
-                Text(
-                    text = stringResource(R.string.to_do),
-                    style = MaterialTheme.typography.headlineLarge
-                )
+        if (tasks.isNotEmpty()) {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(vertical = 16.dp)
+            ) {
+                item {
+                    Text(
+                        text = stringResource(R.string.to_do),
+                        style = MaterialTheme.typography.headlineLarge
+                    )
+                }
+                items(tasks, key = { task -> task.id }) { task ->
+                    TaskItemSwippable(
+                        taskTitle = task.title,
+                        taskCategoryName = task.category.name,
+                        onTaskItemClicked = onTaskItemClicked,
+                        isTaskChecked = task.isChecked,
+                        onTaskChecked = { isChecked -> onTaskChecked(task, isChecked) },
+                        onTaskDeleted = { onTaskDeleted(task) },
+                        modifier = Modifier.animateItemPlacement()
+                    )
+                }
             }
-            items(tasks, key = { task -> task.id }) { task ->
-                TaskItemSwippable(
-                    taskTitle = task.title,
-                    taskCategoryName = task.category.name,
-                    onTaskItemClicked = onTaskItemClicked,
-                    isTaskChecked = task.isChecked,
-                    onTaskChecked = { isChecked -> onTaskChecked(task, isChecked) }
-                )
-            }
+        } else {
+            NoTasksMessage(modifier = Modifier.fillMaxSize())
         }
+    }
+}
+
+@Composable
+fun NoTasksMessage(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = stringResource(R.string.nothing_to_do),
+            style = MaterialTheme.typography.labelLarge.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
+        )
     }
 }
 
@@ -82,9 +110,17 @@ fun TaskItemSwippable(
     onTaskItemClicked: () -> Unit,
     isTaskChecked: Boolean,
     onTaskChecked: (Boolean) -> Unit,
+    onTaskDeleted: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val swipeState = rememberDismissState()
+    val swipeState = rememberDismissState(
+        confirmValueChange = {
+            if (it == DismissValue.DismissedToStart) {
+                onTaskDeleted()
+            }
+            true
+        }
+    )
 
     SwipeToDismiss(
         state = swipeState,
