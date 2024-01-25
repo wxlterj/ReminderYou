@@ -124,9 +124,9 @@ fun AddTaskScreen(
         AddTaskForm(
             title = viewModel.titleState,
             description = viewModel.descriptionState,
-            date = uiState.datePicked.format(dateFormatter),
+            date = uiState.datePicked,
             time = uiState.timePicked,
-            category = "",
+            category = uiState.categorySelected?.name ?: "",
             categories = uiState.categories,
             showMenu = uiState.showCategoryMenu,
             onTitleChange = { viewModel.changeTitle(it) },
@@ -134,11 +134,16 @@ fun AddTaskScreen(
                 viewModel.showCategories(it)
                 if (uiState.showCategoryMenu) focusManager.clearFocus()
             },
+            onCategoryClicked = {
+                viewModel.selectCategory(it)
+                focusManager.clearFocus()
+            },
             onAddNewCategoryClicked = {
                 viewModel.showAddCategory()
                 focusManager.clearFocus()
             },
             onDescriptionChange = viewModel::changeDescription,
+            onAddTaskClicked = viewModel::addTask,
             dateInteractionSource = dateInteractionSource,
             timeInteractionSource = timeInteractionSource,
             modifier = Modifier
@@ -214,8 +219,10 @@ fun AddTaskForm(
     showMenu: Boolean,
     onTitleChange: (String) -> Unit,
     onCategoryMenuClicked: (Boolean) -> Unit,
+    onCategoryClicked: (Category) -> Unit,
     onAddNewCategoryClicked: () -> Unit,
     onDescriptionChange: (String) -> Unit,
+    onAddTaskClicked: () -> Unit,
     dateInteractionSource: MutableInteractionSource,
     timeInteractionSource: MutableInteractionSource,
     modifier: Modifier = Modifier
@@ -250,6 +257,7 @@ fun AddTaskForm(
             categories = categories,
             showMenu = showMenu,
             onCategoryMenuClicked = { onCategoryMenuClicked(it) },
+            onCategoryClicked = { onCategoryClicked(it) },
             onCategoryChange = { /*TODO*/ },
             onAddNewCategoryClicked = onAddNewCategoryClicked
         )
@@ -293,7 +301,7 @@ fun AddTaskForm(
             interactionSource = timeInteractionSource
         )
         Spacer(modifier = Modifier.height(12.dp))
-        Button(onClick = { /*TODO*/ }, modifier = Modifier.width(280.dp)) {
+        Button(onClick = onAddTaskClicked, modifier = Modifier.width(280.dp)) {
             Text(text = stringResource(R.string.add_task))
         }
     }
@@ -306,6 +314,7 @@ fun CategoryMenu(
     categories: List<Category>,
     showMenu: Boolean,
     onCategoryMenuClicked: (Boolean) -> Unit,
+    onCategoryClicked: (Category) -> Unit,
     onCategoryChange: () -> Unit,
     onAddNewCategoryClicked: () -> Unit,
     modifier: Modifier = Modifier
@@ -326,12 +335,16 @@ fun CategoryMenu(
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = showMenu)
             },
         )
-        ExposedDropdownMenu(expanded = showMenu, onDismissRequest = {
+        ExposedDropdownMenu(
+            expanded = showMenu,
+            onDismissRequest = {
             onCategoryMenuClicked(false)
-        }
+        },
         ) {
             categories.forEach {
-                DropdownMenuItem(text = { Text(text = it.name) }, onClick = { /*TODO*/ })
+                DropdownMenuItem(
+                    text = { Text(text = it.name) },
+                    onClick = { onCategoryClicked(it) })
             }
             DropdownMenuItem(
                 text = { Text(text = stringResource(R.string.add_new_category)) },

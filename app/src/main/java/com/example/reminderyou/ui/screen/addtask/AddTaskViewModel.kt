@@ -1,5 +1,7 @@
 package com.example.reminderyou.ui.screen.addtask
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -7,8 +9,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.reminderyou.data.local.fake.DataSource
 import com.example.reminderyou.domain.model.Category
+import com.example.reminderyou.domain.model.Task
 import com.example.reminderyou.domain.usecase.GetCategoriesUseCase
 import com.example.reminderyou.domain.usecase.SaveCategoryUseCase
+import com.example.reminderyou.domain.usecase.SaveTaskUseCase
 import com.example.reminderyou.util.dateFormatter
 import com.example.reminderyou.util.timeFormatter
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,8 +23,11 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
+import java.time.ZoneOffset
 import javax.inject.Inject
 
 data class AddTaskUiState(
@@ -28,7 +35,10 @@ data class AddTaskUiState(
     val taskDescription: String = "",
     val datePicked: String = "",
     val timePicked: String = "",
+    val endDate: LocalDate = LocalDate.now(),
+    val endTime: LocalTime = LocalTime.now(),
     val categories: List<Category> = emptyList(),
+    val categorySelected: Category? = null,
     val showCategoryMenu: Boolean = false,
     val showAddCategory: Boolean = false,
 )
@@ -36,7 +46,8 @@ data class AddTaskUiState(
 @HiltViewModel
 class AddTaskViewModel @Inject constructor(
     private val getCategoriesUseCase: GetCategoriesUseCase,
-    private val saveCategoryUseCase: SaveCategoryUseCase
+    private val saveCategoryUseCase: SaveCategoryUseCase,
+    private val saveTaskUseCase: SaveTaskUseCase
 ) : ViewModel() {
 
     var titleState by mutableStateOf("")
@@ -69,7 +80,8 @@ class AddTaskViewModel @Inject constructor(
             .toLocalDate()
         _uiState.update {
             it.copy(
-                datePicked = datePicked.format(dateFormatter)
+                datePicked = datePicked.format(dateFormatter),
+                endDate = datePicked
             )
         }
     }
@@ -78,7 +90,8 @@ class AddTaskViewModel @Inject constructor(
         val timePicked = LocalTime.of(hour, minute)
         _uiState.update {
             it.copy(
-                timePicked = timePicked.format(timeFormatter)
+                timePicked = timePicked.format(timeFormatter),
+                endTime = timePicked
             )
         }
     }
@@ -92,6 +105,10 @@ class AddTaskViewModel @Inject constructor(
             }
         }
         _uiState.update { it.copy(showCategoryMenu = menuExpanded) }
+    }
+
+    fun selectCategory(category: Category) {
+        _uiState.update { it.copy(categorySelected = category, showCategoryMenu = false) }
     }
 
     fun showAddCategory() {
@@ -113,6 +130,22 @@ class AddTaskViewModel @Inject constructor(
             )
         }
         _uiState.update { it.copy(showAddCategory = false) }
+    }
+
+    fun addTask() {
+        val task = _uiState.value.toTask()
+        viewModelScope.launch {
+            saveTaskUseCase(task)
+        }
+    }
+
+    private fun AddTaskUiState.toTask(): Task {
+        return Task(
+            title = taskTitle,
+            description = taskDescription,
+            deadline = LocalDateTime.of(endDate, endTime),
+            categoryId = categorySelected?.id
+        )
     }
 }
 

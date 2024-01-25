@@ -29,38 +29,38 @@ object DataSource {
         )
     )
 
-    val tasks = listOf(
-        Task(
-            id = 1,
-            title = "test 1",
-            description = "oelo 1",
-            date = LocalDate.now(),
-            hour = LocalTime.now(),
-            category = categories.first()
-        ),
-        Task(
-            id = 2,
-            title = "test 2",
-            description = "oelo 2",
-            date = LocalDate.now(),
-            hour = LocalTime.now(),
-            category = categories.first()
-        ),
-        Task(
-            id = 3,
-            title = "test 3",
-            description = "oelo 3",
-            date = LocalDate.now(),
-            hour = LocalTime.now(),
-            category = categories.first()
-        ),
-        Task(
-            id = 4,
-            title = "test 4",
-            description = "oelo 4",
-            date = LocalDate.now(),
-            hour = LocalTime.now(),
-            category = categories.first()
-        )
-    )
+//    val tasks = listOf(
+//        Task(
+//            id = 1,
+//            title = "test 1",
+//            description = "oelo 1",
+//            date = LocalDate.now(),
+//            hour = LocalTime.now(),
+//            category = categories.first()
+//        ),
+//        Task(
+//            id = 2,
+//            title = "test 2",
+//            description = "oelo 2",
+//            date = LocalDate.now(),
+//            hour = LocalTime.now(),
+//            category = categories.first()
+//        ),
+//        Task(
+//            id = 3,
+//            title = "test 3",
+//            description = "oelo 3",
+//            date = LocalDate.now(),
+//            hour = LocalTime.now(),
+//            category = categories.first()
+//        ),
+//        Task(
+//            id = 4,
+//            title = "test 4",
+//            description = "oelo 4",
+//            date = LocalDate.now(),
+//            hour = LocalTime.now(),
+//            category = categories.first()
+//        )
+//    )
 }

@@ -10,7 +10,7 @@ data class CategoryWithTasks(
     val category: CategoryEntity,
     @Relation(
         parentColumn = "categoryId",
-        entityColumn = "categoryId"
+        entityColumn = "categoryId",
     )
     val tasks: List<TaskEntity>
 )

@@ -74,7 +74,7 @@ fun TasksList(
                 items(tasks, key = { task -> task.id }) { task ->
                     TaskItemSwippable(
                         taskTitle = task.title,
-                        taskCategoryName = task.category.name,
+                        taskCategoryName = "",
                         onTaskItemClicked = onTaskItemClicked,
                         isTaskChecked = task.isChecked,
                         onTaskChecked = { isChecked -> onTaskChecked(task, isChecked) },

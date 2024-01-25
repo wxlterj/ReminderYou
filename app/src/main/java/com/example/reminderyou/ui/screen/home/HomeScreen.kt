@@ -163,9 +163,9 @@ fun HomeScreenSuccess(
     if (showTaskDetails) {
         TaskDetailsBottomSheet(
             onDismissRequest = onDismissRequest,
-            taskTitle = DataSource.tasks.get(0).title,
-            taskDescription = DataSource.tasks.get(0).description,
-            taskDate = DataSource.tasks.get(0).date.toString(),
+            taskTitle = "",
+            taskDescription = "",
+            taskDate = "",
             taskTime = LocalTime.now().format(timeFormatter).toString(),
             onEditClicked = { /*TODO*/ },
             onDeleteClicked = { /*TODO*/ }
