@@ -46,21 +46,22 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.reminderyou.R
 import com.example.reminderyou.domain.model.Task
+import com.example.reminderyou.domain.model.TaskWithCategory
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TasksList(
-    tasks: List<Task>,
+    tasksWithCategory: List<TaskWithCategory>,
     onTaskItemClicked: () -> Unit,
-    onTaskChecked: (Task, Boolean) -> Unit,
-    onTaskDeleted: (Task) -> Unit,
+    onTaskChecked: (TaskWithCategory, Boolean) -> Unit,
+    onTaskDeleted: (TaskWithCategory) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        if (tasks.isNotEmpty()) {
+        if (tasksWithCategory.isNotEmpty()) {
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 contentPadding = PaddingValues(vertical = 16.dp)
@@ -71,14 +72,14 @@ fun TasksList(
                         style = MaterialTheme.typography.headlineLarge
                     )
                 }
-                items(tasks, key = { task -> task.id }) { task ->
+                items(tasksWithCategory, key = { task -> task.task.id }) { tasksWithCategory ->
                     TaskItemSwippable(
-                        taskTitle = task.title,
+                        taskTitle = tasksWithCategory.task.title,
                         taskCategoryName = "",
                         onTaskItemClicked = onTaskItemClicked,
-                        isTaskChecked = task.isChecked,
-                        onTaskChecked = { isChecked -> onTaskChecked(task, isChecked) },
-                        onTaskDeleted = { onTaskDeleted(task) },
+                        isTaskChecked = tasksWithCategory.task.isChecked,
+                        onTaskChecked = { isChecked -> onTaskChecked(tasksWithCategory, isChecked) },
+                        onTaskDeleted = { onTaskDeleted(tasksWithCategory) },
                         modifier = Modifier.animateItemPlacement()
                     )
                 }

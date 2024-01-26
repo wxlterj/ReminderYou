@@ -2,17 +2,17 @@ package com.example.reminderyou.di
 
 import android.content.Context
 import androidx.room.Room
-import androidx.room.RoomDatabase
 import com.example.reminderyou.data.local.dao.CategoryDao
 import com.example.reminderyou.data.local.dao.TaskDao
 import com.example.reminderyou.data.local.database.ReminderYouDatabase
 import com.example.reminderyou.data.repository.CategoryRepository
 import com.example.reminderyou.data.repository.TaskRepository
 import com.example.reminderyou.domain.usecase.GetCategoriesUseCase
+import com.example.reminderyou.domain.usecase.GetCategoryUseCase
+import com.example.reminderyou.domain.usecase.GetTasksWithCategoryUseCase
 import com.example.reminderyou.domain.usecase.SaveCategoryUseCase
 import com.example.reminderyou.domain.usecase.SaveTaskUseCase
 import com.example.reminderyou.util.DATABASE_NAME
-import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -74,5 +74,17 @@ object AppModule {
     @Singleton
     fun provideSaveCategoryUseCase(categoryRepository: CategoryRepository): SaveCategoryUseCase {
         return SaveCategoryUseCase(categoryRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetCategoryUseCase(categoryRepository: CategoryRepository): GetCategoryUseCase {
+        return GetCategoryUseCase(categoryRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetTasksWithCategoryUseCase(taskRepository: TaskRepository, categoryRepository: CategoryRepository): GetTasksWithCategoryUseCase {
+        return GetTasksWithCategoryUseCase(taskRepository, categoryRepository)
     }
 }

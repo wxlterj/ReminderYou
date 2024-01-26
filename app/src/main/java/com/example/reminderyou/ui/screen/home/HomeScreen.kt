@@ -43,12 +43,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.reminderyou.R
 import com.example.reminderyou.data.local.fake.DataSource
 import com.example.reminderyou.domain.model.Category
 import com.example.reminderyou.domain.model.Task
+import com.example.reminderyou.domain.model.TaskWithCategory
 import com.example.reminderyou.ui.core.util.Screen
 import com.example.reminderyou.ui.core.util.composables.ReminderYouFAB
 import com.example.reminderyou.ui.core.util.composables.ReminderYouTopAppBar
@@ -65,7 +67,7 @@ import java.time.LocalTime
 fun HomeScreen(
     onAddTaskPressed: () -> Unit,
     onCategoryClicked: () -> Unit,
-    viewModel: HomeViewModel = viewModel()
+    viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -132,27 +134,27 @@ fun HomeScreen(
 
 @Composable
 fun HomeScreenSuccess(
-    toDoTasks: List<Task>,
+    toDoTasks: List<TaskWithCategory>,
     categories: List<Category>,
     showTaskDetails: Boolean,
     onTaskItemClicked: () -> Unit,
     onDismissRequest: () -> Unit,
-    onTaskChecked: (Task, Boolean) -> Unit,
+    onTaskChecked: (TaskWithCategory, Boolean) -> Unit,
     onCategoryClicked: () -> Unit,
-    onTaskDeleted: (Task) -> Unit,
+    onTaskDeleted: (TaskWithCategory) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier.fillMaxSize()
     ) {
         TaskStatusCard(
-            tasksDone = toDoTasks.filter { it.isChecked }.size.toString(),
-            tasksPending = toDoTasks.filter { !it.isChecked }.size.toString(),
+            tasksDone = toDoTasks.filter { it.task.isChecked }.size.toString(),
+            tasksPending = toDoTasks.filter { !it.task.isChecked }.size.toString(),
             modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
         )
         CategoriesList(categories = categories, onCategoryClicked = onCategoryClicked)
         TasksList(
-            tasks = toDoTasks,
+            tasksWithCategory = toDoTasks,
             onTaskItemClicked = onTaskItemClicked,
             onTaskChecked = onTaskChecked,
             onTaskDeleted = onTaskDeleted,

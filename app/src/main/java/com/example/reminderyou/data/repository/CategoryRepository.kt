@@ -21,6 +21,11 @@ class CategoryRepository @Inject constructor(
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun getCategoryById(categoryId: Int): Flow<Category> {
+        return categoryDao.getCategoryById(categoryId).mapLatest { it.toCategory() }
+    }
+
     suspend fun saveCategory(category: Category) {
         categoryDao.saveCategory(category.toCategoryEntity())
     }

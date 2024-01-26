@@ -4,8 +4,6 @@ import com.example.reminderyou.data.local.entity.TaskEntity
 import com.example.reminderyou.domain.model.Task
 import com.example.reminderyou.util.longToLocalDateTime
 import com.example.reminderyou.util.toLong
-import java.time.ZoneId
-import java.time.ZoneOffset
 
 fun Task.toTaskEntity(): TaskEntity {
     return TaskEntity(
