@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.twotone.Delete
@@ -27,6 +28,7 @@ import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.DismissDirection
 import androidx.compose.material3.DismissValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,15 +40,18 @@ import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.reminderyou.R
 import com.example.reminderyou.domain.model.Task
 import com.example.reminderyou.domain.model.TaskWithCategory
+import com.example.reminderyou.ui.theme.ReminderYouTheme
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -75,10 +80,15 @@ fun TasksList(
                 items(tasksWithCategory, key = { task -> task.task.id }) { tasksWithCategory ->
                     TaskItemSwippable(
                         taskTitle = tasksWithCategory.task.title,
-                        taskCategoryName = "",
+                        taskCategoryName = tasksWithCategory.category?.name ?: "",
                         onTaskItemClicked = onTaskItemClicked,
                         isTaskChecked = tasksWithCategory.task.isChecked,
-                        onTaskChecked = { isChecked -> onTaskChecked(tasksWithCategory, isChecked) },
+                        onTaskChecked = { isChecked ->
+                            onTaskChecked(
+                                tasksWithCategory,
+                                isChecked
+                            )
+                        },
                         onTaskDeleted = { onTaskDeleted(tasksWithCategory) },
                         modifier = Modifier.animateItemPlacement()
                     )
@@ -178,7 +188,11 @@ fun TaskItem(
             modifier = Modifier.fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Checkbox(checked = isTaskChecked, onCheckedChange = onTaskChecked)
+            Checkbox(
+                checked = isTaskChecked,
+                onCheckedChange = onTaskChecked,
+                modifier = Modifier.clip(CircleShape)
+            )
             Text(
                 text = taskTitle,
                 modifier = Modifier.weight(1f),
@@ -187,12 +201,14 @@ fun TaskItem(
                 maxLines = 1,
                 style = MaterialTheme.typography.titleLarge
             )
-            AssistChip(
-                onClick = { /*TODO*/ },
-                label = { Text(text = categoryName) },
-                modifier = Modifier.padding(end = 16.dp),
-                shape = RoundedCornerShape(32.dp)
-            )
+            if (categoryName.isNotEmpty()) {
+                AssistChip(
+                    onClick = { /*TODO*/ },
+                    label = { Text(text = categoryName) },
+                    modifier = Modifier.padding(end = 16.dp),
+                    shape = RoundedCornerShape(32.dp)
+                )
+            }
         }
     }
 }

@@ -49,14 +49,20 @@ fun Navigation(navController: NavHostController = rememberNavController()) {
             )
         }
     ) {
+        val backStackEntry = navController.previousBackStackEntry?.destination
+        val isBackStackEntry = backStackEntry == null
         composable(NavigationRoute.Home.route) {
             HomeScreen(
                 onAddTaskPressed = { navController.navigate(NavigationRoute.AddTask.route) },
-                onCategoryClicked = { navController.navigate(NavigationRoute.CategoryScreen.route) }
+                onCategoryClicked = { navController.navigate(NavigationRoute.CategoryScreen.route) },
+                isBackStackEntry = isBackStackEntry
             )
         }
         composable(NavigationRoute.AddTask.route) {
-            AddTaskScreen(onBackClicked = { navController.popBackStack() })
+            AddTaskScreen(
+                onBackClicked = { navController.popBackStack() },
+                onAddTaskClicked = { navController.popBackStack() }
+            )
         }
         composable(NavigationRoute.CategoryScreen.route) {
             CategoryScreen(onBackButtonClicked = {})

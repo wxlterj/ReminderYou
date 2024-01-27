@@ -8,17 +8,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.reminderyou.R
-import com.example.reminderyou.data.local.fake.DataSource
-import com.example.reminderyou.domain.model.Category
 import com.example.reminderyou.ui.core.util.Screen
 import com.example.reminderyou.ui.core.util.composables.ReminderYouTopAppBar
 import com.example.reminderyou.ui.core.util.composables.TaskStatusCard
-import com.example.reminderyou.ui.core.util.composables.TasksList
-import com.example.reminderyou.ui.theme.ReminderYouTheme
 
 @Composable
 fun CategoryScreen(onBackButtonClicked: () -> Unit) {

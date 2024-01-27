@@ -42,8 +42,8 @@ fun ReminderYouTopAppBar(
         },
         actions = {
             Icon(
-                imageVector = Icons.Filled.Notifications,
-                contentDescription = "Notifications",
+                imageVector = currentScreen.actionIcon.icon,
+                contentDescription = stringResource(currentScreen.actionIcon.description),
                 modifier = Modifier.padding(end = 16.dp)
             )
         },

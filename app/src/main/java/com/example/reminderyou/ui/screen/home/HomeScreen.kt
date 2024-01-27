@@ -33,6 +33,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -45,11 +46,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.reminderyou.R
-import com.example.reminderyou.data.local.fake.DataSource
 import com.example.reminderyou.domain.model.Category
-import com.example.reminderyou.domain.model.Task
 import com.example.reminderyou.domain.model.TaskWithCategory
 import com.example.reminderyou.ui.core.util.Screen
 import com.example.reminderyou.ui.core.util.composables.ReminderYouFAB
@@ -67,12 +65,17 @@ import java.time.LocalTime
 fun HomeScreen(
     onAddTaskPressed: () -> Unit,
     onCategoryClicked: () -> Unit,
+    isBackStackEntry: Boolean,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+
+    LaunchedEffect(key1 = isBackStackEntry) {
+        viewModel.loadSuccessState()
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -125,7 +128,7 @@ fun HomeScreen(
                 }
 
                 is HomeUiState.Error -> {
-                    HomeScreenError(onRetryClicked = { })
+                    HomeScreenError(onRetryClicked = { viewModel.loadSuccessState() })
                 }
             }
         }
@@ -242,7 +245,7 @@ fun CategoriesList(
             items(categories, key = { it.id }) { category ->
                 CategoryCard(
                     categoryName = category.name,
-                    categoryTasks = category.tasksQuantity,
+                    categoryTasks = category.tasks?.size ?: 0,
                     onCategoryClicked = onCategoryClicked
                 )
             }

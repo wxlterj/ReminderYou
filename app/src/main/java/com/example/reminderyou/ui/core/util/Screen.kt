@@ -1,7 +1,7 @@
 package com.example.reminderyou.ui.core.util
 
-enum class Screen(val navigationIcon: NavigationIcon) {
-    Home(NavigationIcon.Menu),
-    AddTask(NavigationIcon.Back),
-    Category(NavigationIcon.Back)
+enum class Screen(val navigationIcon: NavigationIcon, val actionIcon: NavigationIcon) {
+    Home(NavigationIcon.Menu, NavigationIcon.Notification),
+    AddTask(NavigationIcon.Back, NavigationIcon.Notification),
+    Category(NavigationIcon.Back, NavigationIcon.Delete)
 }

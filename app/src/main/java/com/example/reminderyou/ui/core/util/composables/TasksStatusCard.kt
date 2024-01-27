@@ -28,6 +28,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.reminderyou.R
+import com.example.reminderyou.util.dateFormatter
 import java.time.ZonedDateTime
 
 @Composable
@@ -53,7 +54,7 @@ fun TaskStatusCard(tasksDone: String, tasksPending: String, modifier: Modifier =
                 )
 
                 Text(
-                    text = currentDate.toString(),
+                    text = currentDate.format(dateFormatter).toString(),
                     modifier = Modifier.padding(end = 8.dp),
                     style = MaterialTheme.typography.titleMedium
                 )

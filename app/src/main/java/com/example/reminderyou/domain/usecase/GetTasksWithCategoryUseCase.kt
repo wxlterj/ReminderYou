@@ -4,6 +4,7 @@ import com.example.reminderyou.data.repository.CategoryRepository
 import com.example.reminderyou.data.repository.TaskRepository
 import com.example.reminderyou.domain.model.TaskWithCategory
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.last
 import javax.inject.Inject
 
 class GetTasksWithCategoryUseCase @Inject constructor(
@@ -15,7 +16,7 @@ class GetTasksWithCategoryUseCase @Inject constructor(
         val tasksWithCategory: MutableList<TaskWithCategory> =
             emptyList<TaskWithCategory>().toMutableList()
 
-        val tasks = taskRepository.getTasks().first().forEach { task ->
+        taskRepository.getTasks().first().forEach { task ->
             val category = task.categoryId?.let {
                 categoryRepository.getCategoryById(it).first()
             }

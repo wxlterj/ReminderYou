@@ -12,7 +12,7 @@ import com.example.reminderyou.data.local.entity.TaskEntity
         TaskEntity::class,
         CategoryEntity::class
     ],
-    version = 2
+    version = 4
 )
 abstract class ReminderYouDatabase : RoomDatabase() {
     abstract fun getTaskDao(): TaskDao

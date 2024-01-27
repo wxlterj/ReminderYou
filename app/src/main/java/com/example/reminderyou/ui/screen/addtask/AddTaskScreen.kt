@@ -67,6 +67,7 @@ import java.time.LocalTime
 @Composable
 fun AddTaskScreen(
     onBackClicked: () -> Unit,
+    onAddTaskClicked: () -> Unit,
     viewModel: AddTaskViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -143,7 +144,10 @@ fun AddTaskScreen(
                 focusManager.clearFocus()
             },
             onDescriptionChange = viewModel::changeDescription,
-            onAddTaskClicked = viewModel::addTask,
+            onAddTaskClicked = {
+                onAddTaskClicked()
+                viewModel.addTask()
+                               },
             dateInteractionSource = dateInteractionSource,
             timeInteractionSource = timeInteractionSource,
             modifier = Modifier

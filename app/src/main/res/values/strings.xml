@@ -32,5 +32,6 @@
     <string name="add_new_category">Add new category</string>
     <string name="name">Name</string>
     <string name="save_category">Save category</string>
+    <string name="notifications">Notifications</string>
 
 </resources>
