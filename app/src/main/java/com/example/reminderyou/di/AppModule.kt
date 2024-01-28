@@ -7,6 +7,8 @@ import com.example.reminderyou.data.local.dao.TaskDao
 import com.example.reminderyou.data.local.database.ReminderYouDatabase
 import com.example.reminderyou.data.repository.CategoryRepository
 import com.example.reminderyou.data.repository.TaskRepository
+import com.example.reminderyou.domain.usecase.CheckTaskUseCase
+import com.example.reminderyou.domain.usecase.DeleteTaskUseCase
 import com.example.reminderyou.domain.usecase.GetCategoriesUseCase
 import com.example.reminderyou.domain.usecase.GetCategoryUseCase
 import com.example.reminderyou.domain.usecase.GetTasksWithCategoryUseCase
@@ -86,5 +88,17 @@ object AppModule {
     @Singleton
     fun provideGetTasksWithCategoryUseCase(taskRepository: TaskRepository, categoryRepository: CategoryRepository): GetTasksWithCategoryUseCase {
         return GetTasksWithCategoryUseCase(taskRepository, categoryRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideDeleteTaskUseCase(taskRepository: TaskRepository): DeleteTaskUseCase {
+        return DeleteTaskUseCase(taskRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCheckTaskUseCase(taskRepository: TaskRepository): CheckTaskUseCase {
+        return CheckTaskUseCase(taskRepository)
     }
 }

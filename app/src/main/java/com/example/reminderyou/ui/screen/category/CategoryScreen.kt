@@ -7,14 +7,23 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.reminderyou.ui.core.util.Screen
 import com.example.reminderyou.ui.core.util.composables.ReminderYouTopAppBar
 import com.example.reminderyou.ui.core.util.composables.TaskStatusCard
+import com.example.reminderyou.ui.core.util.composables.TasksList
 
 @Composable
-fun CategoryScreen(onBackButtonClicked: () -> Unit) {
+fun CategoryScreen(
+    onBackButtonClicked: () -> Unit,
+    viewModel: CategoryViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
     Scaffold(
         topBar = {
             ReminderYouTopAppBar(
@@ -34,16 +43,17 @@ fun CategoryScreen(onBackButtonClicked: () -> Unit) {
                 style = MaterialTheme.typography.headlineLarge
             )
             TaskStatusCard(
-                tasksDone = "5",
-                tasksPending = "5",
+                tasksDone = uiState.tasks.filter { it.task.isChecked }.size.toString(),
+                tasksPending = uiState.tasks.filter { !it.task.isChecked }.size.toString(),
                 modifier = Modifier
                     .padding(16.dp)
             )
-            /* TODO TasksList(tasks = DataSource.tasks,
-                onTaskItemClicked = {/*TODO*/ },
-                onTaskChecked = { task, isChecked },
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )*/
+            TasksList(
+                tasksWithCategory = uiState.tasks,
+                onTaskItemClicked = { /*TODO*/ },
+                onTaskChecked = { task, isChecked -> viewModel.pass(task, isChecked) },
+                onTaskDeleted = {}
+            )
         }
     }
 }

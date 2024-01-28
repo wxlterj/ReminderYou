@@ -22,6 +22,6 @@ fun CategoryWithTasks.toCategory(): Category {
     return Category(
         id = this.category.categoryId,
         name = this.category.name,
-        tasks = this.tasks
+        tasks = this.tasks.map { it.toTask() }
     )
 }

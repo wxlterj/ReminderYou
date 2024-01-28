@@ -2,7 +2,11 @@ package com.example.reminderyou.ui.screen.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.reminderyou.data.mapper.toTask
+import com.example.reminderyou.domain.model.Task
 import com.example.reminderyou.domain.model.TaskWithCategory
+import com.example.reminderyou.domain.usecase.CheckTaskUseCase
+import com.example.reminderyou.domain.usecase.DeleteTaskUseCase
 import com.example.reminderyou.domain.usecase.GetCategoriesUseCase
 import com.example.reminderyou.domain.usecase.GetTasksWithCategoryUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,7 +24,9 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val getTasksWithCategoryUseCase: GetTasksWithCategoryUseCase,
-    private val getCategoriesUseCase: GetCategoriesUseCase
+    private val getCategoriesUseCase: GetCategoriesUseCase,
+    private val deleteTaskUseCase: DeleteTaskUseCase,
+    private val checkTaskUseCase: CheckTaskUseCase
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
@@ -69,27 +75,16 @@ class HomeViewModel @Inject constructor(
     }
 
     fun checkTask(task: TaskWithCategory, isChecked: Boolean) {
-        _uiState.update { currentState ->
-            val taskListUpdated =
-                (currentState as HomeUiState.Success).tasks.map { taskWithCategoryState ->
-                    if (taskWithCategoryState == task) {
-                        taskWithCategoryState.copy(
-                            task = taskWithCategoryState.task.copy(isChecked = isChecked)
-                        )
-                    } else {
-                        taskWithCategoryState
-                    }
-                }
-            currentState.copy(tasks = taskListUpdated)
+        val taskChecked = task.task.copy(isChecked = isChecked)
+        viewModelScope.launch {
+            checkTaskUseCase(taskChecked)
         }
+        loadSuccessState()
     }
-    fun deleteTask(task: TaskWithCategory) {
-        _uiState.update { currentState ->
-            val tasksListMutable = (currentState as HomeUiState.Success).tasks.toMutableList()
-            tasksListMutable.remove(task)
-            currentState.copy(
-                tasks = tasksListMutable.toList()
-            )
+    fun deleteTask(taskWithCategory: TaskWithCategory) {
+        viewModelScope.launch {
+            deleteTaskUseCase(taskWithCategory.toTask())
+            loadSuccessState()
         }
     }
 }
