@@ -26,8 +26,8 @@ class TaskRepository @Inject constructor(
         return taskDao.getTaskById(taskId).mapLatest { it.toTask() }
     }
 
-    suspend fun saveTask(task: Task) {
-        taskDao.saveTask(task.toTaskEntity())
+    suspend fun saveTask(task: Task): Long {
+        return taskDao.saveTask(task.toTaskEntity())
     }
 
     suspend fun deleteTask(task: Task) {

@@ -24,6 +24,7 @@ import com.example.reminderyou.ui.core.util.Screen
 fun ReminderYouTopAppBar(
     currentScreen: Screen,
     onNavigationIconClicked: () -> Unit,
+    onActionButtonClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     CenterAlignedTopAppBar(
@@ -41,11 +42,13 @@ fun ReminderYouTopAppBar(
             }
         },
         actions = {
-            Icon(
-                imageVector = currentScreen.actionIcon.icon,
-                contentDescription = stringResource(currentScreen.actionIcon.description),
-                modifier = Modifier.padding(end = 16.dp)
-            )
+            IconButton(onClick = onActionButtonClicked) {
+                Icon(
+                    imageVector = currentScreen.actionIcon.icon,
+                    contentDescription = stringResource(currentScreen.actionIcon.description),
+                    modifier = Modifier.padding(end = 16.dp)
+                )
+            }
         },
         scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     )

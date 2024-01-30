@@ -6,7 +6,7 @@ import java.time.ZoneId
 import java.time.ZoneOffset
 
 fun LocalDateTime.toLong(): Long {
-    return this.toEpochSecond(ZoneOffset.UTC) * 1000
+    return this.atZone(ZoneId.systemDefault()).toEpochSecond() * 1000
 }
 
 fun longToLocalDateTime(long: Long): LocalDateTime {

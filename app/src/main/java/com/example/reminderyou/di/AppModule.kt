@@ -7,14 +7,18 @@ import com.example.reminderyou.data.local.dao.TaskDao
 import com.example.reminderyou.data.local.database.ReminderYouDatabase
 import com.example.reminderyou.data.repository.CategoryRepository
 import com.example.reminderyou.data.repository.TaskRepository
+import com.example.reminderyou.data.repository.notification.TaskNotificationRepository
 import com.example.reminderyou.domain.usecase.CheckTaskUseCase
+import com.example.reminderyou.domain.usecase.DeleteCategoryUseCase
 import com.example.reminderyou.domain.usecase.DeleteTaskUseCase
 import com.example.reminderyou.domain.usecase.GetCategoriesUseCase
-import com.example.reminderyou.domain.usecase.GetCategoryUseCase
+import com.example.reminderyou.domain.usecase.GetCategoryByIdUseCase
+import com.example.reminderyou.domain.usecase.GetCategoryWithTasksUseCase
 import com.example.reminderyou.domain.usecase.GetTasksWithCategoryUseCase
 import com.example.reminderyou.domain.usecase.SaveCategoryUseCase
 import com.example.reminderyou.domain.usecase.SaveTaskUseCase
 import com.example.reminderyou.util.DATABASE_NAME
+import com.example.reminderyou.util.alarms.AndroidAlarmScheduler
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -62,12 +66,6 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideSaveTaskUseCase(taskRepository: TaskRepository): SaveTaskUseCase {
-        return SaveTaskUseCase(taskRepository)
-    }
-
-    @Provides
-    @Singleton
     fun provideGetCategoriesUseCase(categoryRepository: CategoryRepository): GetCategoriesUseCase {
         return GetCategoriesUseCase(categoryRepository)
     }
@@ -80,25 +78,63 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideGetCategoryUseCase(categoryRepository: CategoryRepository): GetCategoryUseCase {
-        return GetCategoryUseCase(categoryRepository)
+    fun provideGetCategoryWithTasksUseCase(categoryRepository: CategoryRepository): GetCategoryWithTasksUseCase {
+        return GetCategoryWithTasksUseCase(categoryRepository)
     }
 
     @Provides
     @Singleton
-    fun provideGetTasksWithCategoryUseCase(taskRepository: TaskRepository, categoryRepository: CategoryRepository): GetTasksWithCategoryUseCase {
+    fun provideGetTasksWithCategoryUseCase(
+        taskRepository: TaskRepository,
+        categoryRepository: CategoryRepository
+    ): GetTasksWithCategoryUseCase {
         return GetTasksWithCategoryUseCase(taskRepository, categoryRepository)
     }
 
     @Provides
     @Singleton
-    fun provideDeleteTaskUseCase(taskRepository: TaskRepository): DeleteTaskUseCase {
-        return DeleteTaskUseCase(taskRepository)
+    fun provideGetCategoryByIdUseCase(categoryRepository: CategoryRepository): GetCategoryByIdUseCase {
+        return GetCategoryByIdUseCase(categoryRepository)
     }
 
     @Provides
     @Singleton
-    fun provideCheckTaskUseCase(taskRepository: TaskRepository): CheckTaskUseCase {
-        return CheckTaskUseCase(taskRepository)
+    fun provideDeleteCategoryUseCase(categoryRepository: CategoryRepository): DeleteCategoryUseCase {
+        return DeleteCategoryUseCase(categoryRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAndroidAlarmScheduler(@ApplicationContext context: Context): AndroidAlarmScheduler {
+        return AndroidAlarmScheduler(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideTaskNotificationRepository(androidAlarmScheduler: AndroidAlarmScheduler): TaskNotificationRepository {
+        return TaskNotificationRepository(androidAlarmScheduler)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSaveTaskUseCase(
+        taskRepository: TaskRepository,
+        taskNotificationRepository: TaskNotificationRepository
+    ): SaveTaskUseCase {
+        return SaveTaskUseCase(taskRepository, taskNotificationRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCheckTaskUseCase(taskRepository: TaskRepository, taskNotificationRepository: TaskNotificationRepository): CheckTaskUseCase {
+        return CheckTaskUseCase(taskRepository, taskNotificationRepository)
+    }
+    @Provides
+    @Singleton
+    fun provideDeleteTaskUseCase(
+        taskRepository: TaskRepository,
+        taskNotificationRepository: TaskNotificationRepository
+    ): DeleteTaskUseCase {
+        return DeleteTaskUseCase(taskRepository, taskNotificationRepository)
     }
 }

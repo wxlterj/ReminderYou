@@ -11,9 +11,11 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.example.reminderyou.ui.screen.addtask.AddTaskScreen
 import com.example.reminderyou.ui.screen.category.CategoryScreen
@@ -54,7 +56,7 @@ fun Navigation(navController: NavHostController = rememberNavController()) {
         composable(NavigationRoute.Home.route) {
             HomeScreen(
                 onAddTaskPressed = { navController.navigate(NavigationRoute.AddTask.route) },
-                onCategoryClicked = { navController.navigate(NavigationRoute.CategoryScreen.route) },
+                onCategoryClicked = { navController.navigate("${NavigationRoute.CategoryScreen.route}/$it") },
                 isBackStackEntry = isBackStackEntry
             )
         }
@@ -64,8 +66,13 @@ fun Navigation(navController: NavHostController = rememberNavController()) {
                 onAddTaskClicked = { navController.popBackStack() }
             )
         }
-        composable(NavigationRoute.CategoryScreen.route) {
-            CategoryScreen(onBackButtonClicked = {})
+        composable(
+            "${NavigationRoute.CategoryScreen.route}/{categoryId}",
+            arguments = listOf(navArgument("categoryId") { type = NavType.IntType })
+        ) {
+            CategoryScreen(
+                onBackButtonClicked = { navController.popBackStack() },
+                onActionButtonClicked = { navController.popBackStack() })
         }
     }
 }

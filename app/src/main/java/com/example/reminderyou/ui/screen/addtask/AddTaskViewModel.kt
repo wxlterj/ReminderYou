@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.reminderyou.domain.model.Category
 import com.example.reminderyou.domain.model.Task
 import com.example.reminderyou.domain.usecase.GetCategoriesUseCase
+import com.example.reminderyou.domain.usecase.GetCategoryByIdUseCase
 import com.example.reminderyou.domain.usecase.SaveCategoryUseCase
 import com.example.reminderyou.domain.usecase.SaveTaskUseCase
 import com.example.reminderyou.util.dateFormatter
@@ -42,6 +43,7 @@ data class AddTaskUiState(
 class AddTaskViewModel @Inject constructor(
     private val getCategoriesUseCase: GetCategoriesUseCase,
     private val saveCategoryUseCase: SaveCategoryUseCase,
+    private val getCategoryByIdUseCase: GetCategoryByIdUseCase,
     private val saveTaskUseCase: SaveTaskUseCase
 ) : ViewModel() {
 
@@ -120,11 +122,14 @@ class AddTaskViewModel @Inject constructor(
 
     fun saveCategory() {
         viewModelScope.launch {
-            saveCategoryUseCase(
+            val categoryId = saveCategoryUseCase(
                 category = Category(name = categoryName)
             )
+            getCategoryByIdUseCase(categoryId.toInt()).collectLatest { category ->
+
+                _uiState.update { it.copy(categorySelected = category, showAddCategory = false) }
+            }
         }
-        _uiState.update { it.copy(showAddCategory = false) }
     }
 
     fun addTask() {

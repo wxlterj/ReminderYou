@@ -38,9 +38,12 @@ import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -57,8 +60,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.reminderyou.R
 import com.example.reminderyou.domain.model.Category
 import com.example.reminderyou.ui.core.util.Screen
+import com.example.reminderyou.ui.core.util.composables.AddCategoryBottomSheet
 import com.example.reminderyou.ui.core.util.composables.ReminderYouTopAppBar
 import com.example.reminderyou.ui.theme.ReminderYouTheme
+import com.example.reminderyou.util.LENGTH_MAX_DESCRIPTION
+import com.example.reminderyou.util.LENGTH_MAX_TITLE
 import com.example.reminderyou.util.dateFormatter
 import kotlinx.coroutines.launch
 import java.time.LocalTime
@@ -118,7 +124,8 @@ fun AddTaskScreen(
         topBar = {
             ReminderYouTopAppBar(
                 currentScreen = Screen.AddTask,
-                onNavigationIconClicked = onBackClicked
+                onNavigationIconClicked = onBackClicked,
+                onActionButtonClicked = {}
             )
         }
     ) { innerPadding ->
@@ -147,7 +154,7 @@ fun AddTaskScreen(
             onAddTaskClicked = {
                 onAddTaskClicked()
                 viewModel.addTask()
-                               },
+            },
             dateInteractionSource = dateInteractionSource,
             timeInteractionSource = timeInteractionSource,
             modifier = Modifier
@@ -232,6 +239,8 @@ fun AddTaskForm(
     modifier: Modifier = Modifier
 ) {
     val titleFocusRequester = remember { FocusRequester() }
+    var isLongTitle by remember { mutableStateOf(false) }
+    var isLongDescription by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier,
@@ -245,7 +254,10 @@ fun AddTaskForm(
         Spacer(modifier = Modifier.height(12.dp))
         OutlinedTextField(
             value = title,
-            onValueChange = { onTitleChange(it) },
+            onValueChange = {
+                onTitleChange(it.take(LENGTH_MAX_TITLE))
+                isLongTitle = it.length >= LENGTH_MAX_TITLE + 1
+            },
             modifier = Modifier
                 .width(280.dp)
                 .focusRequester(titleFocusRequester),
@@ -253,9 +265,17 @@ fun AddTaskForm(
                 Text(text = stringResource(R.string.add_task_title))
             },
             singleLine = true,
+            supportingText = {
+                if (isLongTitle) Text(
+                    text = stringResource(
+                        R.string.title_length_message,
+                        LENGTH_MAX_TITLE
+                    )
+                )
+            },
+            isError = isLongTitle,
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
         )
-        Spacer(modifier = Modifier.height(8.dp))
         CategoryMenu(
             category = category,
             categories = categories,
@@ -265,16 +285,29 @@ fun AddTaskForm(
             onCategoryChange = { /*TODO*/ },
             onAddNewCategoryClicked = onAddNewCategoryClicked
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(18.dp))
         OutlinedTextField(
             value = description,
-            onValueChange = { onDescriptionChange(it) },
+            onValueChange = {
+                onDescriptionChange(it.take(LENGTH_MAX_DESCRIPTION))
+                isLongDescription = it.length >= LENGTH_MAX_DESCRIPTION + 1
+            },
             modifier = Modifier.width(280.dp),
             label = { Text(text = stringResource(R.string.add_task_description)) },
-            maxLines = 8,
-            minLines = 8
+            supportingText = {
+                if (isLongDescription) {
+                    Text(
+                        text = stringResource(
+                            R.string.description_length_message,
+                            LENGTH_MAX_DESCRIPTION
+                        )
+                    )
+                }
+            },
+            isError = isLongDescription,
+            maxLines = 5,
+            minLines = 4
         )
-        Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
             value = date,
             onValueChange = {},
@@ -290,7 +323,7 @@ fun AddTaskForm(
             },
             interactionSource = dateInteractionSource
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(17.dp))
         OutlinedTextField(
             value = time,
             onValueChange = {},
@@ -304,7 +337,7 @@ fun AddTaskForm(
             },
             interactionSource = timeInteractionSource
         )
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(17.dp))
         Button(onClick = onAddTaskClicked, modifier = Modifier.width(280.dp)) {
             Text(text = stringResource(R.string.add_task))
         }
@@ -342,8 +375,8 @@ fun CategoryMenu(
         ExposedDropdownMenu(
             expanded = showMenu,
             onDismissRequest = {
-            onCategoryMenuClicked(false)
-        },
+                onCategoryMenuClicked(false)
+            },
         ) {
             categories.forEach {
                 DropdownMenuItem(
@@ -361,36 +394,6 @@ fun CategoryMenu(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AddCategoryBottomSheet(
-    categoryName: String,
-    onCategoryNameChange: (String) -> Unit,
-    onSaveCategoryClicked: () -> Unit,
-    onAddCategoryDismiss: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val sheetState = rememberModalBottomSheetState()
-    val scope = rememberCoroutineScope()
-
-    ModalBottomSheet(
-        onDismissRequest = {
-            onAddCategoryDismiss()
-            scope.launch {
-                sheetState.hide()
-            }
-        },
-        modifier = modifier,
-        sheetState = sheetState
-    ) {
-        AddCategory(
-            categoryName = categoryName,
-            onCategoryNameChange = onCategoryNameChange,
-            onSaveCategoryClicked = onSaveCategoryClicked,
-            modifier = Modifier.padding(24.dp)
-        )
-    }
-}
 
 @Composable
 fun AddCategory(
@@ -399,6 +402,7 @@ fun AddCategory(
     onSaveCategoryClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var isLongName by remember { mutableStateOf(false) }
     Column(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -407,11 +411,20 @@ fun AddCategory(
             text = stringResource(R.string.add_new_category),
             style = MaterialTheme.typography.titleLarge
         )
+        Spacer(modifier = Modifier.height(17.dp))
         OutlinedTextField(
             value = categoryName,
-            onValueChange = { onCategoryNameChange(it) },
+            onValueChange = {
+                onCategoryNameChange(it.take(LENGTH_MAX_TITLE))
+                isLongName = it.length >= LENGTH_MAX_TITLE + 1
+            },
             modifier = Modifier.padding(top = 12.dp, bottom = 8.dp),
-            label = { Text(text = stringResource(R.string.name)) }
+            label = { Text(text = stringResource(R.string.name)) },
+            supportingText = {
+                if (isLongName) {
+                    Text(text = stringResource(R.string.title_length_message, LENGTH_MAX_TITLE))
+                }
+            }
         )
         Button(onClick = onSaveCategoryClicked, modifier = Modifier) {
             Text(text = stringResource(R.string.save_category))

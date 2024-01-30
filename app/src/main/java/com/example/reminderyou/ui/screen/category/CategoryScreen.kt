@@ -14,12 +14,16 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.reminderyou.ui.core.util.Screen
 import com.example.reminderyou.ui.core.util.composables.ReminderYouTopAppBar
+import com.example.reminderyou.ui.core.util.composables.TaskDetailsBottomSheet
 import com.example.reminderyou.ui.core.util.composables.TaskStatusCard
 import com.example.reminderyou.ui.core.util.composables.TasksList
+import com.example.reminderyou.util.dateFormatter
+import com.example.reminderyou.util.timeFormatter
 
 @Composable
 fun CategoryScreen(
     onBackButtonClicked: () -> Unit,
+    onActionButtonClicked: () -> Unit,
     viewModel: CategoryViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -28,7 +32,11 @@ fun CategoryScreen(
         topBar = {
             ReminderYouTopAppBar(
                 currentScreen = Screen.Category,
-                onNavigationIconClicked = onBackButtonClicked
+                onNavigationIconClicked = onBackButtonClicked,
+                onActionButtonClicked = {
+                    viewModel.deleteCategory()
+                    onActionButtonClicked()
+                }
             )
         }
     ) { innerPadding ->
@@ -38,7 +46,7 @@ fun CategoryScreen(
                 .padding(innerPadding)
         ) {
             Text(
-                text = "Work",
+                text = uiState.category.name,
                 modifier = Modifier.padding(start = 16.dp),
                 style = MaterialTheme.typography.headlineLarge
             )
@@ -50,11 +58,24 @@ fun CategoryScreen(
             )
             TasksList(
                 tasksWithCategory = uiState.tasks,
-                onTaskItemClicked = { /*TODO*/ },
-                onTaskChecked = { task, isChecked -> viewModel.pass(task, isChecked) },
-                onTaskDeleted = {}
+                onTaskItemClicked = viewModel::showTaskDetails,
+                onTaskChecked = { task, isChecked -> viewModel.checkTask(task, isChecked) },
+                onTaskDeleted = viewModel::deleteTask,
+                modifier = Modifier.padding(horizontal = 16.dp)
             )
         }
+    }
+
+    if (uiState.showTaskDetails) {
+        TaskDetailsBottomSheet(
+            onDismissRequest = viewModel::onTaskDetailsClosed,
+            taskTitle = uiState.currentTask.task.title,
+            taskDescription = uiState.currentTask.task.description,
+            taskDate = uiState.currentTask.task.deadline.format(dateFormatter),
+            taskTime = uiState.currentTask.task.deadline.format(timeFormatter),
+            onEditClicked = { /*TODO*/ },
+            onDeleteClicked = { viewModel.deleteTask() }
+        )
     }
 }
 

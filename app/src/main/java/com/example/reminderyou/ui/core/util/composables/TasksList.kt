@@ -57,7 +57,7 @@ import com.example.reminderyou.ui.theme.ReminderYouTheme
 @Composable
 fun TasksList(
     tasksWithCategory: List<TaskWithCategory>,
-    onTaskItemClicked: () -> Unit,
+    onTaskItemClicked: (TaskWithCategory) -> Unit,
     onTaskChecked: (TaskWithCategory, Boolean) -> Unit,
     onTaskDeleted: (TaskWithCategory) -> Unit,
     modifier: Modifier = Modifier
@@ -81,7 +81,7 @@ fun TasksList(
                     TaskItemSwippable(
                         taskTitle = tasksWithCategory.task.title,
                         taskCategoryName = tasksWithCategory.category?.name ?: "",
-                        onTaskItemClicked = onTaskItemClicked,
+                        onTaskItemClicked = { onTaskItemClicked(tasksWithCategory) },
                         isTaskChecked = tasksWithCategory.task.isChecked,
                         onTaskChecked = { isChecked ->
                             onTaskChecked(
@@ -108,7 +108,9 @@ fun NoTasksMessage(modifier: Modifier = Modifier) {
     ) {
         Text(
             text = stringResource(R.string.nothing_to_do),
-            style = MaterialTheme.typography.labelLarge.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
+            style = MaterialTheme.typography.titleLarge.copy(
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         )
     }
 }

@@ -2,6 +2,7 @@ package com.example.reminderyou.ui.screen.home
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -50,6 +52,7 @@ import com.example.reminderyou.R
 import com.example.reminderyou.domain.model.Category
 import com.example.reminderyou.domain.model.TaskWithCategory
 import com.example.reminderyou.ui.core.util.Screen
+import com.example.reminderyou.ui.core.util.composables.AddCategoryBottomSheet
 import com.example.reminderyou.ui.core.util.composables.ReminderYouFAB
 import com.example.reminderyou.ui.core.util.composables.ReminderYouTopAppBar
 import com.example.reminderyou.ui.core.util.composables.TaskDetailsBottomSheet
@@ -57,6 +60,7 @@ import com.example.reminderyou.ui.core.util.composables.TaskStatusCard
 import com.example.reminderyou.ui.core.util.composables.TasksList
 import com.example.reminderyou.ui.theme.ReminderYouTheme
 import com.example.reminderyou.util.FabType
+import com.example.reminderyou.util.dateFormatter
 import com.example.reminderyou.util.timeFormatter
 import kotlinx.coroutines.launch
 import java.time.LocalTime
@@ -64,7 +68,7 @@ import java.time.LocalTime
 @Composable
 fun HomeScreen(
     onAddTaskPressed: () -> Unit,
-    onCategoryClicked: () -> Unit,
+    onCategoryClicked: (Int) -> Unit,
     isBackStackEntry: Boolean,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
@@ -95,7 +99,8 @@ fun HomeScreen(
                                 if (isClosed) open() else close()
                             }
                         }
-                    }
+                    },
+                    onActionButtonClicked = {}
                 )
             },
             floatingActionButton = {
@@ -113,11 +118,18 @@ fun HomeScreen(
                     HomeScreenSuccess(
                         toDoTasks = currentState.tasks,
                         categories = currentState.categories,
+                        onAddNewCategoryClicked = { viewModel.onAddCategoryClicked() },
+                        onAddCategoryDismiss = { viewModel.onAddCategoryClosed() },
+                        onCategoryNameChanged = viewModel::changeCategoryName,
+                        onSaveCategoryClicked = viewModel::saveCategory,
+                        categoryName = viewModel.categoryNameState,
                         showTaskDetails = currentState.showTaskDetails,
-                        onTaskItemClicked = { viewModel.onTaskItemClicked() },
+                        showAddNewCategory = currentState.showAddCategory,
+                        onTaskItemClicked = { viewModel.onTaskItemClicked(it) },
+                        taskClicked = currentState.currentTask,
                         onDismissRequest = { viewModel.onTaskBottomSheetClosed() },
                         onTaskChecked = { task, isChecked -> viewModel.checkTask(task, isChecked) },
-                        onCategoryClicked = onCategoryClicked,
+                        onCategoryClicked = { onCategoryClicked(it) },
                         onTaskDeleted = { task -> viewModel.deleteTask(task) },
                         modifier = Modifier.padding(innerPadding)
                     )
@@ -139,11 +151,18 @@ fun HomeScreen(
 fun HomeScreenSuccess(
     toDoTasks: List<TaskWithCategory>,
     categories: List<Category>,
+    onAddNewCategoryClicked: () -> Unit,
+    onAddCategoryDismiss: () -> Unit,
+    onCategoryNameChanged: (String) -> Unit,
+    onSaveCategoryClicked: () -> Unit,
+    categoryName: String,
     showTaskDetails: Boolean,
-    onTaskItemClicked: () -> Unit,
+    showAddNewCategory: Boolean,
+    onTaskItemClicked: (TaskWithCategory) -> Unit,
+    taskClicked: TaskWithCategory,
     onDismissRequest: () -> Unit,
     onTaskChecked: (TaskWithCategory, Boolean) -> Unit,
-    onCategoryClicked: () -> Unit,
+    onCategoryClicked: (Int) -> Unit,
     onTaskDeleted: (TaskWithCategory) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -155,10 +174,14 @@ fun HomeScreenSuccess(
             tasksPending = toDoTasks.filter { !it.task.isChecked }.size.toString(),
             modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
         )
-        CategoriesList(categories = categories, onCategoryClicked = onCategoryClicked)
+        CategoriesList(
+            categories = categories,
+            onCategoryClicked = { onCategoryClicked(it) },
+            onAddNewCategoryClicked = onAddNewCategoryClicked
+        )
         TasksList(
             tasksWithCategory = toDoTasks,
-            onTaskItemClicked = onTaskItemClicked,
+            onTaskItemClicked = { onTaskItemClicked(it) },
             onTaskChecked = onTaskChecked,
             onTaskDeleted = onTaskDeleted,
             modifier = Modifier.padding(horizontal = 16.dp)
@@ -168,19 +191,28 @@ fun HomeScreenSuccess(
     if (showTaskDetails) {
         TaskDetailsBottomSheet(
             onDismissRequest = onDismissRequest,
-            taskTitle = "",
-            taskDescription = "",
-            taskDate = "",
-            taskTime = LocalTime.now().format(timeFormatter).toString(),
+            taskTitle = taskClicked.task.title,
+            taskDescription = taskClicked.task.description,
+            taskDate = taskClicked.task.deadline.format(dateFormatter),
+            taskTime = taskClicked.task.deadline.format(timeFormatter),
             onEditClicked = { /*TODO*/ },
-            onDeleteClicked = { /*TODO*/ }
+            onDeleteClicked = { onTaskDeleted(taskClicked) }
+        )
+    }
+
+    if (showAddNewCategory) {
+        AddCategoryBottomSheet(
+            categoryName = categoryName,
+            onCategoryNameChange = { onCategoryNameChanged(it) },
+            onSaveCategoryClicked = onSaveCategoryClicked,
+            onAddCategoryDismiss = onAddCategoryDismiss
         )
     }
 }
 
 @Composable
 fun HomeScreenLoading(modifier: Modifier = Modifier) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         CircularProgressIndicator()
     }
 }
@@ -225,30 +257,75 @@ fun ErrorInformation(onRetryClicked: () -> Unit, modifier: Modifier = Modifier) 
 @Composable
 fun CategoriesList(
     categories: List<Category>,
-    onCategoryClicked: () -> Unit,
+    onCategoryClicked: (Int) -> Unit,
+    onAddNewCategoryClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text(
-            text = stringResource(R.string.categories),
-            modifier = Modifier.padding(start = 16.dp),
-            style = MaterialTheme.typography.headlineSmall
-        )
-        LazyRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = PaddingValues(horizontal = 16.dp)
-        ) {
-            items(categories, key = { it.id }) { category ->
-                CategoryCard(
-                    categoryName = category.name,
-                    categoryTasks = category.tasks?.size ?: 0,
-                    onCategoryClicked = onCategoryClicked
-                )
+        if (categories.isEmpty()) {
+            EmptyCategoryList(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 20.dp)
+                    .clickable { onAddNewCategoryClicked() }
+            )
+        } else {
+            Text(
+                text = stringResource(R.string.categories),
+                modifier = Modifier.padding(start = 16.dp),
+                style = MaterialTheme.typography.headlineSmall
+            )
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp)
+            ) {
+                items(categories, key = { it.id }) { category ->
+                    CategoryCard(
+                        categoryName = category.name,
+                        categoryTasks = category.tasks?.size ?: 0,
+                        onCategoryClicked = { onCategoryClicked(category.id) }
+                    )
+                }
+                item {
+                    AddCategoryCard(onAddNewCategoryClicked = onAddNewCategoryClicked)
+                }
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddCategoryCard(onAddNewCategoryClicked: () -> Unit, modifier: Modifier = Modifier) {
+    Card(
+        modifier = modifier.sizeIn(minWidth = 150.dp, maxWidth = 220.dp, minHeight = 140.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        border = BorderStroke(2.dp, Brush.verticalGradient(listOf(Color.Blue, Color.Cyan))),
+        onClick = onAddNewCategoryClicked
+    ) {
+        EmptyCategoryList(
+            modifier = Modifier
+                .sizeIn(minWidth = 150.dp, minHeight = 140.dp)
+                .padding(8.dp)
+        )
+    }
+}
+
+@Composable
+fun EmptyCategoryList(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(imageVector = Icons.Filled.Add, contentDescription = null)
+            Text(text = stringResource(R.string.add_new_category))
         }
     }
 }
@@ -304,8 +381,8 @@ fun CategoryCard(
 
 @Preview
 @Composable
-fun HomeScreenErrorPreview() {
+fun EmptyCategoryListPreview() {
     ReminderYouTheme {
-        HomeScreenError(onRetryClicked = {})
+        EmptyCategoryList()
     }
 }

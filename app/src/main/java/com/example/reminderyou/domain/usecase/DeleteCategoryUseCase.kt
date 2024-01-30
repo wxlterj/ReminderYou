@@ -4,10 +4,10 @@ import com.example.reminderyou.data.repository.CategoryRepository
 import com.example.reminderyou.domain.model.Category
 import javax.inject.Inject
 
-class SaveCategoryUseCase @Inject constructor(
+class DeleteCategoryUseCase @Inject constructor(
     private val categoryRepository: CategoryRepository
 ) {
-    suspend operator fun invoke(category: Category): Long {
-        return categoryRepository.saveCategory(category)
+    suspend operator fun invoke(category: Category) {
+        categoryRepository.deleteCategory(category)
     }
 }

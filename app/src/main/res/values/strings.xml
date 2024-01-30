@@ -33,5 +33,7 @@
     <string name="name">Name</string>
     <string name="save_category">Save category</string>
     <string name="notifications">Notifications</string>
+    <string name="title_length_message">%d letters maximum</string>
+    <string name="description_length_message">%d letters maximum</string>
 
 </resources>
